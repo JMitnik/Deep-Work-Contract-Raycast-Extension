@@ -1,0 +1,61 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "deep-work-contracts",
+  "title": "Deep Work Contracts",
+  "description": "Creates a Deep Work Contract",
+  "icon": "icon.png",
+  "author": "JMitnik",
+  "categories": [
+    "Productivity"
+  ],
+  "license": "MIT",
+  "commands": [
+    {
+      "name": "index",
+      "title": "Deep Work Contract",
+      "subtitle": "Creates a deep work contract in Notion",
+      "description": "Creates a deep work contract in Notion",
+      "mode": "view",
+      "preferences": [
+        {
+          "name": "NOTION_API_KEY",
+          "required": true,
+          "title": "Notion API Key",
+          "description": "Your Notion API Key",
+          "type": "textfield"
+        },
+        {
+          "name": "NOTION_DATABASE_ID",
+          "required": true,
+          "title": "Notion Database ID",
+          "description": "Your Notion Database ID",
+          "type": "textfield"
+        }
+      ]
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.48.9",
+    "@raycast/utils": "^1.5.2",
+    "@types/papaparse": "^5.3.7",
+    "date-fns": "^2.29.3",
+    "node-fetch": "^3.3.1",
+    "papaparse": "^5.4.0",
+    "run-applescript": "^6.1.0"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "1.0.5",
+    "@types/node": "18.8.3",
+    "@types/react": "18.0.9",
+    "eslint": "^7.32.0",
+    "prettier": "^2.5.1",
+    "typescript": "^4.4.3"
+  },
+  "scripts": {
+    "build": "ray build -e dist",
+    "dev": "ray develop",
+    "fix-lint": "ray lint --fix",
+    "lint": "ray lint",
+    "publish": "ray publish"
+  }
+}
