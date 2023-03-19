@@ -18,3 +18,52 @@ export interface NotionPayload {
   message: string;
   code: 'object_not_found' | 'validation_error';
 }
+
+// const contractPayload = {
+//   parent: {
+//     database_id: dbId,
+//     type: 'database_id',
+//   },
+//   properties: {
+//     "Name": {
+//       title: [{ text: { content: values.name } }],
+//     },
+//     "Success Metric": {
+//       "rich_text": [{ "text": { "content": values.successMetric } }],
+//     },
+//     "Duration": {
+//       "number": Number(values.duration),
+//     },
+//     "Smartphone hidden": {
+//       "checkbox": values.hasHiddenPhone,
+//     },
+//     "Water present": {
+//       "checkbox": values.stockedWater,
+//     },
+//   }
+// }
+
+//
+export interface ContractInput {
+  parent: {
+    database_id: string;
+    type: 'database_id';
+  };
+  properties: {
+    Name: {
+      title: [{ text: { content: string } }];
+    };
+    'Success Metric': {
+      rich_text: [{ text: { content: string } }];
+    };
+    Duration: {
+      number: number;
+    };
+    'Smartphone hidden': {
+      checkbox: boolean;
+    };
+    'Water present': {
+      checkbox: boolean;
+    };
+  };
+};
