@@ -5,10 +5,11 @@ import { Values, NotionPayload, ContractInput } from "../types";
 const fetchNotion = async <Output, Input>(
   url: string,
   apiKey: string,
-  data: Input
+  data: Input,
+  method = 'POST',
 ): Promise<Output> => {
   const response = await fetch(url, {
-    method: 'POST',
+    method,
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${apiKey}`,
@@ -22,30 +23,83 @@ const fetchNotion = async <Output, Input>(
   return responseData;
 };
 
-export const fetchAvailableContracts = async (apiKey: string, dbId: string) => {
+interface FilterItem {
+  property: string;
+  checkbox: {
+    equals: boolean;
+  };
+}
+
+interface FilterInput {
+  filter: {
+    and?: Array<FilterItem>;
+  }
+}
+
+export const updateExistingContracts = async (apiKey: string, dbId: string, finishPrevious: boolean) => {
   const notionUrl = `https://api.notion.com/v1/databases/${dbId}/query`;
 
-  // Filter that "Cancel" and "Done" are not checked
-  const filterInput = {
-    filter: {
-      and: [
+  const filter: FilterInput = {
+    "filter": {
+      "and": [
         {
-          property: "Cancel",
-          checkbox: {
-            equals: false,
+          "property": "Done",
+          "checkbox": {
+            "equals": false
           },
         },
         {
-          property: "Done",
-          checkbox: {
-            equals: false,
+          "property": "Cancel",
+          "checkbox": {
+            "equals": false
           },
-        }
+        },
       ]
-    },
+    }
   };
-};
 
+  try {
+    const data = await fetchNotion<NotionPayload, FilterInput>(notionUrl, apiKey, filter, 'POST');
+    if (data.object === "error") {
+      showToast({ style: Toast.Style.Failure, title: "Error", message: data.message });
+    }
+
+    if (data.object === "list") {
+      // Loop through the results and mark them as done.
+      data.results.forEach(async (result) => {
+        const contractId = result.id;
+        const updateUrl = `https://api.notion.com/v1/pages/${contractId}`;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const updatePayload: any = {
+          properties: {}
+        };
+
+        if (finishPrevious) {
+          updatePayload.properties['Done'] = {
+            checkbox: true,
+          }
+        } else {
+          updatePayload.properties['Cancel'] = {
+            checkbox: true,
+          }
+        }
+
+        try {
+          const updateData = await fetchNotion<NotionPayload, typeof updatePayload>(updateUrl, apiKey, updatePayload, 'PATCH');
+          if (updateData.object === "error") {
+            showToast({ style: Toast.Style.Failure, title: "Error", message: updateData.message });
+          }
+        } catch (error) {
+          showToast({ style: Toast.Style.Failure, title: "Error", message: "See logs for error" });
+        }
+      });
+    }
+    return data;
+  } catch (error) {
+    showToast({ style: Toast.Style.Failure, title: "Error", message: "See logs for error" });
+    return null;
+  }
+};
 
 /**
  * Sends the notion contract to the database of contracts.

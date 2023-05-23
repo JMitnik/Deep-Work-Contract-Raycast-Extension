@@ -1,14 +1,22 @@
-import { Form, ActionPanel, Action, showToast, Detail, openExtensionPreferences, Toast } from "@raycast/api";
+import { Form, ActionPanel, Action, showToast, Detail, openExtensionPreferences, Toast,  } from "@raycast/api";
+import { v4 as uuidv4 } from 'uuid';
 import { getPreferenceValues } from "@raycast/api";
-
-import { sendContractToNotion } from "./integrations/notion";
 import { startFocusSession } from "./integrations/focus";
-import { Preferences, Values } from "./types";
+
+import { updateExistingContracts, sendContractToNotion } from "./integrations/notion";
+import { Preferences, FormValues, Values } from "./types";
 
 export default function Command() {
   const preferences = getPreferenceValues<Preferences>();
 
-  async function handleSubmit(values: Values) {
+  async function handleSubmit({ finishPrevious, ...formValues }: FormValues) {
+    await updateExistingContracts(preferences.NOTION_API_KEY, preferences.NOTION_DATABASE_ID, finishPrevious);
+
+    const values: Values = {
+      ...formValues,
+      name: uuidv4(),
+    }
+
     await sendContractToNotion(
       values,
       preferences.NOTION_API_KEY,
@@ -60,12 +68,14 @@ export default function Command() {
         <Form.Dropdown.Item value="50" title="Super-pomodoro (50min)" icon="✍️" />
         <Form.Dropdown.Item value="100" title="Ultra-pomodoro (100min)" icon="🧠" />
       </Form.Dropdown>
-      <Form.TextField id="name" title="Name" placeholder="What is your session about?" />
       <Form.TextArea id="successMetric" title="Success metric" placeholder="What is your objective? Define your success metric" />
       <Form.Separator />
       <Form.Description text="Mise en place: Prepare your workspace" />
       <Form.Checkbox id="hasHiddenPhone" title="Did you hide your phone?" label="Yes" />
       <Form.Checkbox id="stockedWater" title="Did you stock your water?" label="Yes" />
+      <Form.Separator />
+      <Form.Description text="Sessions streak: Continue or restart" />
+      <Form.Checkbox id="finishPrevious" title="Mark previous as done?" label="Yes" defaultValue={true} />
     </Form>
   );
 }

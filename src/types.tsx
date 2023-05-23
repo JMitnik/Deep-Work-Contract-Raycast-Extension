@@ -6,18 +6,33 @@ export type Values = {
   stockedWater: boolean;
 };
 
+export interface FormValues {
+  duration: string;
+  successMetric: string;
+  hasHiddenPhone: boolean;
+  stockedWater: boolean;
+  finishPrevious: boolean;
+}
 
 export interface Preferences {
   NOTION_DATABASE_ID: string;
   NOTION_API_KEY: string;
 }
 
-
-export interface NotionPayload {
+export type NotionPayload<T = any> = {
   object: 'page' | 'error';
   message: string;
   code: 'object_not_found' | 'validation_error';
+} | {
+  object: 'list';
+  results: T[];
 }
+
+// export interface NotionPayload {
+//   object: 'page' | 'error';
+//   message: string;
+//   code: 'object_not_found' | 'validation_error';
+// }
 
 // const contractPayload = {
 //   parent: {
