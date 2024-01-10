@@ -5,16 +5,41 @@ import { getPreferenceValues } from "@raycast/api";
 import { useFetchNotion, defaultFilterOptions, parseLatestContract } from "./integrations/notion";
 import { Preferences } from "./types";
 import { useMemo } from "react";
+import { useFetch } from "@raycast/utils";
 
 export default function Command() {
-  const preferences = getPreferenceValues<Preferences>();
-  const { data, isLoading } =  useFetchNotion(`https://api.notion.com/v1/databases/${preferences.NOTION_DATABASE_ID}/query`, preferences.NOTION_API_KEY, defaultFilterOptions);
+  const preferences = getPreferenceValues<Preferences>() || {
+    NOTION_API_KEY: '',
+    NOTION_DATABASE_ID: '',
+  };
 
-  const parsedData = useMemo(() => parseLatestContract(data as any), [data]);
+  const notionDB = preferences.NOTION_DATABASE_ID ?? '';
+  const notionAPI = preferences.NOTION_API_KEY ?? '';
+  const filterOptions = defaultFilterOptions ?? {};
+
+  const { data, isLoading } = useFetch(`https://api.notion.com/v1/databases/${notionDB}/query`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${notionAPI}`,
+      'Notion-Version': '2022-06-28',
+    },
+    body: JSON.stringify(filterOptions),
+  });
+
+  const parsedData = useMemo(() => {
+    if (isLoading) return {
+        latestMission: "",
+        latestDuration: 0,
+        latestCreatedTime: new Date(),
+    };
+
+    return parseLatestContract(data as any)
+    }, [data, isLoading]);
 
   const parsedDate = parsedData.latestCreatedTime ? new Date(parsedData.latestCreatedTime) : null;
 
-//   Parse date string as "Mon 12:00 PM, 10 Jan"
+    //   Parse date string as "Mon 12:00 PM, 10 Jan"
     const parsedDateStr = parsedDate ? parsedDate.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true }) : null;
 
   async function handleSubmit({ succeeded, comment, nextSteps }: any) {
@@ -64,6 +89,14 @@ export default function Command() {
             <Action title="Open Extension Preferences" onAction={openExtensionPreferences} />
           </ActionPanel>
         }
+      />
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <Detail
+        markdown="Loading..."
       />
     );
   }

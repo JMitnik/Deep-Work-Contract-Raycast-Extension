@@ -83,11 +83,25 @@ export const useFetchNotion = (url: string, apiKey: string, options: any) => {
 };
 
 export const parseLatestContract = (data: NotionPayload): Record<string, any> => {
+  if (!data || !data.object) {
+    showToast({ style: Toast.Style.Failure, title: "Error", message: 'No data / data object' });
+  }
+
   if (data.object === "error") {
     showToast({ style: Toast.Style.Failure, title: "Error", message: data.message });
   }
 
   if (data.object === "list") {
+    if (!data.results || data.results.length === 0) {
+      return {
+        latestMission: "",
+        latestDuration: 0,
+        latestCreatedTime: new Date(),
+      }
+    }
+
+    const result = data.results[0];
+
     const latestResult = data.results[0];
 
     const latestMission = readString(latestResult.properties["Success Metric"]);
