@@ -1,6 +1,7 @@
 import { showToast, Toast } from "@raycast/api";
 import fetch from "node-fetch";
-import { Values, NotionPayload, ContractInput } from "../types";
+import { Values, NotionPayload, ContractInput, NotionStringType, NotionNumberType, NotionCreatedTimeType } from "../types";
+import { useFetch } from "@raycast/utils";
 
 const fetchNotion = async <Output, Input>(
   url: string,
@@ -23,6 +24,18 @@ const fetchNotion = async <Output, Input>(
   return responseData;
 };
 
+export const readString = (data: NotionStringType): string => {
+  return data.rich_text[0].plain_text;
+};
+
+export const readNumber = (data: NotionNumberType): number => {
+  return data.number;
+};
+
+export const readDate = (data: NotionCreatedTimeType): Date => {
+  return new Date(data.created_time);
+};
+
 interface FilterItem {
   property: string;
   checkbox: {
@@ -35,6 +48,65 @@ interface FilterInput {
     and?: Array<FilterItem>;
   }
 }
+
+export const defaultFilterOptions: FilterInput = {
+  "filter": {
+    "and": [
+      {
+        "property": "Done",
+        "checkbox": {
+          "equals": false
+        },
+      },
+      {
+        "property": "Cancel",
+        "checkbox": {
+          "equals": false
+        },
+      },
+    ]
+  }
+}
+
+export const useFetchNotion = (url: string, apiKey: string, options: any) => {
+  const { data, isLoading } = useFetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+      'Notion-Version': '2022-06-28',
+    },
+    body: JSON.stringify(options),
+  });
+
+  return { data, isLoading };
+};
+
+export const parseLatestContract = (data: NotionPayload): Record<string, any> => {
+  if (data.object === "error") {
+    showToast({ style: Toast.Style.Failure, title: "Error", message: data.message });
+  }
+
+  if (data.object === "list") {
+    const latestResult = data.results[0];
+
+    const latestMission = readString(latestResult.properties["Success Metric"]);
+    const latestDuration = readNumber(latestResult.properties["Duration"]);
+    const latestCreatedTime = readDate(latestResult.properties["Created time"]);
+
+    return {
+      latestMission,
+      latestDuration,
+      latestCreatedTime,
+    };
+  }
+
+  return {
+    latestMission: "",
+    latestDuration: 0,
+    latestCreatedTime: new Date(),
+  }
+};
 
 export const updateExistingContracts = async (apiKey: string, dbId: string, finishPrevious: boolean) => {
   const notionUrl = `https://api.notion.com/v1/databases/${dbId}/query`;

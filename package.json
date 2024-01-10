@@ -45,6 +45,29 @@
           "type": "textfield"
         }
       ]
+    },
+    {
+      "name": "reflect",
+      "title": "Reflect",
+      "subtitle": "Reflect on your latest deep work session",
+      "description": "Reflect on your latest deep work session",
+      "mode": "view",
+      "preferences": [
+        {
+          "name": "NOTION_API_KEY",
+          "required": true,
+          "title": "Notion API Key",
+          "description": "Your Notion API Key",
+          "type": "textfield"
+        },
+        {
+          "name": "NOTION_DATABASE_ID",
+          "required": true,
+          "title": "Notion Database ID",
+          "description": "Your Notion Database ID",
+          "type": "textfield"
+        }
+      ]
     }
   ],
   "dependencies": {
