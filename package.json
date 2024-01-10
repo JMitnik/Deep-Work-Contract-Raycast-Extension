@@ -1,9 +1,9 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
-  "name": "deep-work-contracts",
-  "title": "Deep Work Contracts",
+  "name": "deep-work",
+  "title": "Deep Work",
   "description": "Creates a Deep Work Contract",
-  "icon": "icon.png",
+  "icon": "extension_icon.png",
   "author": "JMitnik",
   "categories": [
     "Productivity"
@@ -12,7 +12,7 @@
   "commands": [
     {
       "name": "index",
-      "title": "Deep Work Contract",
+      "title": "Deep Work",
       "subtitle": "Creates a deep work contract in Notion",
       "description": "Creates a deep work contract in Notion",
       "mode": "view",
@@ -30,6 +30,19 @@
           "title": "Notion Database ID",
           "description": "Your Notion Database ID",
           "type": "textfield"
+        },{
+          "name": "GCAL_CLIENT_ID",
+          "required": false,
+          "title": "Google calendar client ID",
+          "description": "Your Google calendar client ID",
+          "type": "textfield"
+        },
+        {
+          "name": "GCAL_CALENDAR_ID",
+          "required": false,
+          "title": "Google calendar ID",
+          "description": "To which calendar you want to store these sessions",
+          "type": "textfield"
         }
       ]
     }
@@ -39,6 +52,7 @@
     "@raycast/utils": "^1.5.2",
     "@types/papaparse": "^5.3.7",
     "date-fns": "^2.29.3",
+    "gapi": "^0.0.3",
     "node-fetch": "^3.3.1",
     "papaparse": "^5.4.0",
     "run-applescript": "^6.1.0",
@@ -46,6 +60,7 @@
   },
   "devDependencies": {
     "@raycast/eslint-config": "1.0.5",
+    "@types/gapi": "^0.0.44",
     "@types/node": "18.8.3",
     "@types/react": "18.0.9",
     "@types/uuid": "^9.0.1",

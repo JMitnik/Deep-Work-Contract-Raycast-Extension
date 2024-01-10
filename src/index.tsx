@@ -1,4 +1,4 @@
-import { Form, ActionPanel, Action, showToast, Detail, openExtensionPreferences, Toast,  } from "@raycast/api";
+import { Form, ActionPanel, Action, showToast, Detail, openExtensionPreferences, Toast, popToRoot  } from "@raycast/api";
 import { v4 as uuidv4 } from 'uuid';
 import { getPreferenceValues } from "@raycast/api";
 import { startFocusSession } from "./integrations/focus";
@@ -24,7 +24,8 @@ export default function Command() {
     );
 
     startFocusSession(Number(values.duration));
-    showToast(Toast.Style.Success, `Session started! 🎉`);
+    await showToast(Toast.Style.Success, `Session started! 🎉`);
+    await popToRoot();
   }
 
   if (!preferences.NOTION_API_KEY) {

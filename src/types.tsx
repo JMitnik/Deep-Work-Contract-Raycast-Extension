@@ -15,6 +15,8 @@ export interface FormValues {
 }
 
 export interface Preferences {
+  GCAL_CLIENT_ID: string;
+  GCAL_CALENDAR_ID: string;
   NOTION_DATABASE_ID: string;
   NOTION_API_KEY: string;
 }
