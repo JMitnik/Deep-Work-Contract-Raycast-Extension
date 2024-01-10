@@ -1,4 +1,4 @@
-import { Form, ActionPanel, Action, showToast, Detail, openExtensionPreferences, Toast, popToRoot  } from "@raycast/api";
+import { Form, ActionPanel, Action, showToast, Detail, openExtensionPreferences, Toast, popToRoot,   } from "@raycast/api";
 import { v4 as uuidv4 } from 'uuid';
 import { getPreferenceValues } from "@raycast/api";
 import { startFocusSession } from "./integrations/focus";
