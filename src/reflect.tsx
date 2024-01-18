@@ -58,9 +58,9 @@ export default function Command() {
     await Clipboard.copy(markdown);
 
     const newTitle = succeeded ? `✅ ${reflectPayload.latestMission}` : `🧠 ${reflectPayload.latestMission}`;
-    await updateExistingContracts(notionAPI, notionDB, true, newTitle, succeeded, comment);
+    await updateExistingContracts(notionAPI, notionDB, true, newTitle, succeeded, comment, nextSteps);
 
-    showToast({ style: Toast.Style.Success, title: "Done!", message: 'Copied to clipboard' });
+    showToast({ style: Toast.Style.Success, title: "Done!", message: 'Saved reflection' });
 
     await popToRoot();
   }
@@ -116,7 +116,7 @@ export default function Command() {
     <Form
         actions={
             <ActionPanel>
-               <Action.SubmitForm title="Format to Clipboard" onSubmit={handleSubmit} />
+               <Action.SubmitForm title="Save Reflection" onSubmit={handleSubmit} />
             </ActionPanel>
         }
     >

@@ -129,6 +129,7 @@ export const updateExistingContracts = async (
   newTitle: string|null = null,
   goalsSuccessful: boolean|null = null,
   comment: string|null = null,
+  nextSteps: string|null = null,
 ) => {
   const notionUrl = `https://api.notion.com/v1/databases/${dbId}/query`;
 
@@ -181,6 +182,12 @@ export const updateExistingContracts = async (
           if (comment) {
             updatePayload.properties['Comment'] = {
               rich_text: [{ text: { content: comment } }],
+            }
+          }
+
+          if (nextSteps) {
+            updatePayload.properties['Next Steps'] = {
+              rich_text: [{ text: { content: nextSteps } }],
             }
           }
 
