@@ -2,10 +2,11 @@
 import { Form, ActionPanel, Action, Detail, openExtensionPreferences, popToRoot, Clipboard, showToast, Toast  } from "@raycast/api";
 import { getPreferenceValues } from "@raycast/api";
 
-import { useFetchNotion, defaultFilterOptions, parseLatestContract } from "./integrations/notion";
-import { Preferences } from "./types";
+import { defaultFilterOptions, parseLatestContract, updateExistingContracts } from "./integrations/notion";
+import { Preferences, ReflectPayload } from "./types";
 import { useMemo } from "react";
 import { useFetch } from "@raycast/utils";
+import { formatReflect, parseDateString } from "./utils";
 
 export default function Command() {
   const preferences = getPreferenceValues<Preferences>() || {
@@ -28,40 +29,37 @@ export default function Command() {
   });
 
   const parsedData = useMemo(() => {
-    if (isLoading) return {
+    if (isLoading) {
+      return {
+        latestId: null,
         latestMission: "",
         latestDuration: 0,
         latestCreatedTime: new Date(),
-    };
+      };
+    }
 
     return parseLatestContract(data as any)
-    }, [data, isLoading]);
+  }, [data, isLoading]);
 
-  const parsedDate = parsedData.latestCreatedTime ? new Date(parsedData.latestCreatedTime) : null;
-
-    //   Parse date string as "Mon 12:00 PM, 10 Jan"
-    const parsedDateStr = parsedDate ? parsedDate.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true }) : null;
+  const parsedDateString = parseDateString(parsedData.latestCreatedTime);
 
   async function handleSubmit({ succeeded, comment, nextSteps }: any) {
-    /**
-     * I want to format this to a Markdown string and copy it to the clipboard.
-     * > [!session] Session at ${parsedDateStr} for ${parsedData.latestDuration} minutes
-     * > Length: ${parsedData.latestDuration} minutes
-     * > Goal: ${parsedData.latestMission}
-     * > Success: ${succeeded ? "Yes" : "No"}
-     * >
-     * > Reflection:
-     * > ${comment}
-     * >
-     * > Next steps:
-     * > ${nextSteps}
-     */
+    const reflectPayload: ReflectPayload = {
+      contractId: parsedData.latestId,
+      latestMission: parsedData.latestMission,
+      comment,
+      parsedDateString: parsedDateString ?? '',
+      nextSteps,
+      succeeded,
+      duration: parsedData.latestDuration,
+    };
 
-    const markdown = '> [!session] Session at ' + parsedDateStr + ' for ' + parsedData.latestDuration + ' minutes\n' +
-    '> **Length**: ' + parsedData.latestDuration + ' minutes\n' + '> **Goal**: ' + parsedData.latestMission + '\n' + '> **Success**: ' + (succeeded ? "Yes" : "No") + '\n' +  '>' + '\n' +
-    '> **Reflection**:\n' + '> ' + comment + '\n' + '>' + '\n' + '> **Next steps**:\n' + '> ' + nextSteps;
-
+    const markdown = formatReflect(reflectPayload);
     await Clipboard.copy(markdown);
+
+    const newTitle = succeeded ? `✅ ${reflectPayload.latestMission}` : `🧠 ${reflectPayload.latestMission}`;
+    await updateExistingContracts(notionAPI, notionDB, true, newTitle, succeeded, comment);
+
     showToast({ style: Toast.Style.Success, title: "Done!", message: 'Copied to clipboard' });
 
     await popToRoot();
@@ -128,7 +126,7 @@ export default function Command() {
 
         {parsedData.latestCreatedTime && (
             <>
-            <Form.Description title="When was this" text={parsedDateStr ?? ''}  />
+            <Form.Description title="When was this" text={parsedDateString ?? ''}  />
             <Form.Description title="Your set goal" text={parsedData.latestMission}  />
             <Form.Description title="Your duration" text={`${parsedData.latestDuration} minutes`}  />
             </>

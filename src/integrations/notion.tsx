@@ -100,15 +100,15 @@ export const parseLatestContract = (data: NotionPayload): Record<string, any> =>
       }
     }
 
-    const result = data.results[0];
-
     const latestResult = data.results[0];
 
+    const latestId = latestResult.id;
     const latestMission = readString(latestResult.properties["Success Metric"]);
     const latestDuration = readNumber(latestResult.properties["Duration"]);
     const latestCreatedTime = readDate(latestResult.properties["Created time"]);
 
     return {
+      latestId,
       latestMission,
       latestDuration,
       latestCreatedTime,
@@ -122,7 +122,14 @@ export const parseLatestContract = (data: NotionPayload): Record<string, any> =>
   }
 };
 
-export const updateExistingContracts = async (apiKey: string, dbId: string, finishPrevious: boolean) => {
+export const updateExistingContracts = async (
+  apiKey: string,
+  dbId: string,
+  finishPrevious: boolean,
+  newTitle: string|null = null,
+  goalsSuccessful: boolean|null = null,
+  comment: string|null = null,
+) => {
   const notionUrl = `https://api.notion.com/v1/databases/${dbId}/query`;
 
   const filter: FilterInput = {
@@ -163,6 +170,24 @@ export const updateExistingContracts = async (apiKey: string, dbId: string, fini
         if (finishPrevious) {
           updatePayload.properties['Done'] = {
             checkbox: true,
+          }
+
+          if (newTitle) {
+            updatePayload.properties['Name'] = {
+              title: [{ text: { content: newTitle ?? 'Done' } }],
+            }
+          }
+
+          if (comment) {
+            updatePayload.properties['Comment'] = {
+              rich_text: [{ text: { content: comment } }],
+            }
+          }
+
+          if (goalsSuccessful !== null) {
+            updatePayload.properties['Goals successful'] = {
+              checkbox: goalsSuccessful,
+            }
           }
         } else {
           updatePayload.properties['Cancel'] = {

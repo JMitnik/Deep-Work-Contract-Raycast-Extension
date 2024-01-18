@@ -1,3 +1,4 @@
+
 export type Values = {
   name: string;
   duration: string;
@@ -19,6 +20,16 @@ export interface Preferences {
   GCAL_CALENDAR_ID: string;
   NOTION_DATABASE_ID: string;
   NOTION_API_KEY: string;
+}
+
+export interface ReflectPayload {
+  contractId: string;
+  latestMission: string;
+  comment: string;
+  parsedDateString: string;
+  nextSteps: string;
+  succeeded: boolean;
+  duration: number;
 }
 
 export type NotionPayload<T = any> = {
