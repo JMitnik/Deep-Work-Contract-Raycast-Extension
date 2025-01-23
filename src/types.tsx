@@ -30,6 +30,7 @@ export interface ReflectPayload {
   nextSteps: string;
   succeeded: boolean;
   duration: number;
+  lastGoal?: string;
 }
 
 export type NotionPayload<T = any> = {

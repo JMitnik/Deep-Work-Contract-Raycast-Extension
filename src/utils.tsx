@@ -15,8 +15,29 @@ export const parseDateString = (dateString: string|null): string|null => {
     return parsedDateStr;
 };
 
-export const formatReflect = ({ comment, duration, nextSteps, parsedDateString, succeeded, latestMission }: ReflectPayload) => {
-    return '> [!session] Session at ' + parsedDateString + ' for ' + duration + ' minutes\n' +
-    '> **Length**: ' + duration + ' minutes\n' + '> **Goal**: ' + latestMission + '\n' + '> **Success**: ' + (succeeded ? "Yes" : "No") + '\n' +  '>' + '\n' +
-    '> **Reflection**:\n' + '> ' + comment + '\n' + '>' + '\n' + '> **Next steps**:\n' + '> ' + nextSteps;
-}
+export const formatReflect = ({
+  comment,
+  parsedDateString,
+  succeeded,
+  latestMission,
+  duration,
+  lastGoal
+}: ReflectPayload) => {
+    const goal = lastGoal || latestMission;
+
+     // Split comment by newlines and prefix each line with "> "
+     const formattedComment = comment
+     .split('\n')
+     .map(line => `> ${line}`)
+     .join('\n');
+
+     return [
+      `> [!session] Session at ${parsedDateString}`,
+      `> **Duration**: ${duration} minutes`,
+      `> **Goal**: ${goal}`,
+      `> **Success**: ${succeeded ? "Yes" : "No"}`,
+      '>',
+      '> **Reflection**:',
+      formattedComment,
+  ].join('\n');
+};

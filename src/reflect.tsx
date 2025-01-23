@@ -43,7 +43,7 @@ export default function Command() {
 
   const parsedDateString = parseDateString(parsedData.latestCreatedTime);
 
-  async function handleSubmit({ succeeded, comment, nextSteps }: any) {
+  async function handleSubmit({ succeeded, comment, nextSteps, lastGoal, duration }: any) {
     const reflectPayload: ReflectPayload = {
       contractId: parsedData.latestId,
       latestMission: parsedData.latestMission,
@@ -51,7 +51,8 @@ export default function Command() {
       parsedDateString: parsedDateString ?? '',
       nextSteps,
       succeeded,
-      duration: parsedData.latestDuration,
+      duration: duration ?? parsedData.latestDuration,
+      lastGoal,
     };
 
     const markdown = formatReflect(reflectPayload);
@@ -112,6 +113,8 @@ export default function Command() {
     );
   }
 
+  const useManualGoal = true;
+
   return (
     <Form
         actions={
@@ -120,26 +123,32 @@ export default function Command() {
             </ActionPanel>
         }
     >
-        <Form.Separator />
 
-        <Form.Description text="About your last contract"  />
-
-        {parsedData.latestCreatedTime && (
+        {parsedData.latestCreatedTime && !useManualGoal && (
             <>
-            <Form.Description title="When was this" text={parsedDateString ?? ''}  />
-            <Form.Description title="Your set goal" text={parsedData.latestMission}  />
-            <Form.Description title="Your duration" text={`${parsedData.latestDuration} minutes`}  />
+              <Form.Separator />
+
+              <Form.Description text="About your last contract"  />
+              <Form.Description title="When was this" text={parsedDateString ?? ''}  />
+              <Form.Description title="Your set goal" text={parsedData.latestMission}  />
+              <Form.Description title="Your duration" text={`${parsedData.latestDuration} minutes`}  />
+
+              <Form.Separator />
             </>
         )}
-        <Form.Separator />
 
         <Form.Description text="Time to reflect"  />
 
-        <Form.Checkbox autoFocus id="succeeded" title="Success achieved?" label="Yes" defaultValue={false} />
+        {useManualGoal && (
+          <>
+            <Form.TextField info="In minutes" autoFocus id="duration" title="Last goal" placeholder="How many minutes did you spend in total in this session?" />
+            <Form.TextField info="Check your last focus session" id="lastGoal" title="Last goal" placeholder="What was the last goal?" />
+          </>
+        )}
 
-        <Form.TextArea id="comment" title="Reflection" placeholder="What went well? What could be improved?" />
-        <Form.TextArea id="nextSteps" title="Next steps" placeholder="What are my next steps?" />
+        <Form.Checkbox id="succeeded" title="Success achieved?" label="Yes" defaultValue={false} />
 
+        <Form.TextArea info="What worked, what could have gone better? And what's next?" id="comment" title="Reflection" placeholder="What went well? What could be improved?" />
         </Form>
   );
 }
