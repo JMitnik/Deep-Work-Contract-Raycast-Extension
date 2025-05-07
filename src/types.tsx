@@ -31,6 +31,7 @@ export interface ReflectPayload {
   succeeded: boolean;
   duration: number;
   lastGoal?: string;
+  flowState?: boolean;
 }
 
 export type NotionPayload<T = any> = {

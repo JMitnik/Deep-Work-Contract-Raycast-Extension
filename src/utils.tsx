@@ -21,7 +21,8 @@ export const formatReflect = ({
   succeeded,
   latestMission,
   duration,
-  lastGoal
+  lastGoal,
+  flowState
 }: ReflectPayload) => {
     const goal = lastGoal || latestMission;
 
@@ -36,6 +37,7 @@ export const formatReflect = ({
       `> **Duration**: ${duration} minutes`,
       `> **Goal**: ${goal}`,
       `> **Success**: ${succeeded ? "Yes" : "No"}`,
+      `> **Flow state**: ${flowState ? "Yes" : "No"}`,
       '>',
       '> **Reflection**:',
       formattedComment,

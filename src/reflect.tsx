@@ -43,7 +43,7 @@ export default function Command() {
 
   const parsedDateString = parseDateString(parsedData.latestCreatedTime);
 
-  async function handleSubmit({ succeeded, comment, nextSteps, lastGoal, duration }: any) {
+  async function handleSubmit({ succeeded, comment, nextSteps, lastGoal, duration, flowState }: any) {
     const reflectPayload: ReflectPayload = {
       contractId: parsedData.latestId,
       latestMission: parsedData.latestMission,
@@ -53,6 +53,7 @@ export default function Command() {
       succeeded,
       duration: duration ?? parsedData.latestDuration,
       lastGoal,
+      flowState,
     };
 
     const markdown = formatReflect(reflectPayload);
@@ -141,8 +142,10 @@ export default function Command() {
 
         {useManualGoal && (
           <>
-            <Form.TextField info="In minutes" autoFocus id="duration" title="Last goal" placeholder="How many minutes did you spend in total in this session?" />
+            <Form.TextField info="In minutes" autoFocus id="duration" title="Duration of last session" placeholder="How many minutes did you spend in total in this session?" />
             <Form.TextField info="Check your last focus session" id="lastGoal" title="Last goal" placeholder="What was the last goal?" />
+
+            <Form.Checkbox id="flowState" title="Flow state achieved?" label="Yes" defaultValue={false} />
           </>
         )}
 
